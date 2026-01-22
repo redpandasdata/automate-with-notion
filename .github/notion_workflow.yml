@@ -1,0 +1,61 @@
+name: Daily Product ETL to Notion
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    # Toutes les heures entre 10h et 12h30 (heure de Paris, UTC+1) le 22 janvier 2026
+    - cron: "0 9 22 1 *"    # 10h00 Paris
+    - cron: "0 10 22 1 *"   # 11h00 Paris
+    - cron: "0 11 22 1 *"   # 12h00 Paris
+    - cron: "30 11 22 1 *"  # 12h30 Paris
+  workflow_dispatch:
+
+jobs:
+  etl:
+    runs-on: ubuntu-latest
+    env:
+      SOURCE_URL: "https://www.notion.so/30e6ee27a36f43a5b29b72a3bc4309ac?v=0309574841344a9ea4d756e9a9b2dd88"
+      PAGE_SIZE: "100"
+      NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          cd ETL_process/automate-with-notion
+          pip install -r requirements.txt
+
+      - name: Verify Notion data source access
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATA_SOURCE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+        run: |
+          set -e
+          curl -sS -o /dev/null -w "%{http_code}\n" \
+            -H "Authorization: Bearer $NOTION_TOKEN" \
+            -H "Notion-Version: 2025-09-03" \
+            "https://api.notion.com/v1/data_sources/$NOTION_DATABASE_ID/query" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -d '{"page_size":1}' | tee http_code.txt
+          code=$(cat http_code.txt)
+          if [ "$code" != "200" ]; then
+            echo "Data source query failed with HTTP $code. Check ID and integration sharing." >&2
+            exit 1
+          fi
+
+      - name: Run ETL
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+        run: |
+          cd ETL_process/automate-with-notion
+          python etl.py
