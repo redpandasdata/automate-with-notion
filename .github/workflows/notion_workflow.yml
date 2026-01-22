@@ -31,7 +31,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd ETL_process/automate-with-notion
           pip install -r requirements.txt
 
       - name: Verify Notion data source access
@@ -57,5 +56,4 @@ jobs:
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
         run: |
-          cd ETL_process/automate-with-notion
           python etl.py
