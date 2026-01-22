@@ -16,9 +16,15 @@ jobs:
   etl:
     runs-on: ubuntu-latest
     env:
-      SOURCE_URL: "https://www.notion.so/30e6ee27a36f43a5b29b72a3bc4309ac?v=0309574841344a9ea4d756e9a9b2dd88"
+      SOURCE_URL: "https://www.notion.so/..."
       PAGE_SIZE: "100"
       NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+
+      PG_HOST: ${{ secrets.PG_HOST }}
+      PG_PORT: ${{ secrets.PG_PORT }}
+      PG_DATABASE: ${{ secrets.PG_DATABASE }}
+      PG_USER: ${{ secrets.PG_USER }}
+      PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
 
     steps:
       - name: Checkout repository
