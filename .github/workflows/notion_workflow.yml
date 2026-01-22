@@ -25,6 +25,7 @@ jobs:
       PG_DATABASE: ${{ secrets.PG_DATABASE }}
       PG_USER: ${{ secrets.PG_USER }}
       PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
+      PG_DB: ${{ secrets.PG_DB }}
 
     steps:
       - name: Checkout repository
